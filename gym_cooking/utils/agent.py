@@ -61,7 +61,7 @@ class RealAgent:
         return color(self.name[-1], self.color)
 
     def __copy__(self):
-        a = Agent(arglist=self.arglist,
+        a = RealAgent(arglist=self.arglist,
                 name=self.name,
                 id_color=self.color,
                 recipes=self.recipes)
@@ -132,6 +132,7 @@ class RealAgent:
         if self.subtask is None or len(self.subtask_agent_names) == 0:
             print("{} has no subtask".format(color(self.name, self.color)))
             return
+        
         self.subtask_complete = self.is_subtask_complete(world)
         print("{} done with {} according to planner: {}\nplanner has subtask {} with subtask object {}".format(
             color(self.name, self.color),

@@ -1,5 +1,6 @@
 import recipe_planner.utils as recipe
 
+
 # core modules
 from utils.core import Object
 
@@ -22,7 +23,7 @@ class STRIPSWorld:
                         self.initial.add_predicate(recipe.Fresh(obj_name))
 
     def generate_graph(self, recipe, max_path_length):
-        all_actions = recipe.actions   # set
+        all_actions = recipe.actions
         goal_state = None
 
         new_preds = set()

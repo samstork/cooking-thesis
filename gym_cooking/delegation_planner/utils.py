@@ -7,12 +7,14 @@ from utils.utils import agent_settings
 
 class SubtaskAllocDistribution():
     """Represents a distribution over subtask allocations."""
+        # Subtask alloc = ta I think?
 
     def __init__(self, subtask_allocs):
         # subtask_allocs are a list of tuples of (subtask, subtask_agents).
         self.probs = {}
         if len(subtask_allocs) == 0:
             return
+        # All equally likely
         prior = 1./(len(subtask_allocs))
         print('set prior', prior)
 
@@ -26,15 +28,38 @@ class SubtaskAllocDistribution():
         return s
 
     def enumerate_subtask_allocs(self):
+        """Gets keys of subtask allocation probability distribution dictionary
+
+        Returns:
+            list: probability keys
+        """
         return list(self.probs.keys())
 
     def get_list(self):
+        """Gets values of subtask allocation probability distribution dictionary
+
+        Returns:
+            list: probability keys
+        """
         return list(self.probs.items())
 
     def get(self, subtask_alloc):
+        """Gets the probability of a given subtask allocation given this distribution
+
+        Args:
+            subtask_alloc (tuple): tuples of (subtask, subtask_agents)
+
+        Returns:
+            float: probability of subtask_alloc given this distribution
+        """
         return self.probs[tuple(subtask_alloc)]
 
     def get_max(self):
+        """Gets the subtask allocation with the highest probability in the distribution. Random if tied.
+
+        Returns:
+            float: random max probability subtask allocation
+        """
         if len(self.probs) > 0:
             max_prob = max(self.probs.values())
             max_subtask_allocs = [subtask_alloc for subtask_alloc, p in self.probs.items() if p == max_prob]
@@ -42,9 +67,19 @@ class SubtaskAllocDistribution():
         return None
 
     def get_max_bucketed(self):
+        """gets 
+
+        Args:
+            agent_name (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         subtasks = []
         probs = []
+        # Loop through distribution
         for subtask_alloc, p in self.probs.items():
+            # Loop through 
             for t in subtask_alloc:
                 if agent_name in t.subtask_agent_names:
                     # If already accounted for, then add probability.

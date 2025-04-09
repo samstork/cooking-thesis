@@ -25,6 +25,11 @@ class Rep:
     ONION = 'o'
     PLATE = 'p'
 
+class nothingburger:
+    def __init__(self):
+        pass
+
+    
 class GridSquare:
     def __init__(self, name, location):
         self.name = name

@@ -1,7 +1,7 @@
 import dill as pickle
 import copy
 
-class Bag:
+class zBag:
     def __init__(self, arglist, filename):
         self.data = {}
         self.arglist = arglist
