@@ -28,14 +28,17 @@ COLORS = ['blue', 'magenta', 'yellow', 'green']
 class RealAgent:
     """Real Agent object that performs task inference and plans."""
 
-    def __init__(self, arglist, name, id_color, recipes):
+    def __init__(self, arglist, name, id_color, all_recipes, own_recipes):
         self.arglist = arglist
         self.name = name
         self.color = id_color
-        self.recipes = recipes
+        self.recipes = all_recipes
+        self.own_recipes = own_recipes
 
         # Bayesian Delegation.
         self.reset_subtasks()
+        self.subtask = None
+
         self.new_subtask = None
         self.new_subtask_agent_names = []
         self.incomplete_subtasks = []
@@ -64,7 +67,8 @@ class RealAgent:
         a = RealAgent(arglist=self.arglist,
                 name=self.name,
                 id_color=self.color,
-                recipes=self.recipes)
+                all_recipes=self.recipes,
+                own_recipes=self.own_recipes)
         a.subtask = self.subtask
         a.new_subtask = self.new_subtask
         a.subtask_agent_names = self.subtask_agent_names
@@ -96,12 +100,13 @@ class RealAgent:
         self.plan(copy.copy(obs))
         return self.action
 
-    def get_subtasks(self, world):
+    def get_subtasks(self, world, recipes):
         """Return different subtask permutations for recipes."""
-        self.sw = STRIPSWorld(world, self.recipes)
+        self.sw = STRIPSWorld(world, recipes)
         # [path for recipe 1, path for recipe 2, ...] where each path is a list of actions.
         subtasks = self.sw.get_subtasks(max_path_length=self.arglist.max_num_subtasks)
         all_subtasks = [subtask for path in subtasks for subtask in path]
+        print(f"Subtasks: {all_subtasks}")
 
         # Uncomment below to view graph for recipe path i
         # i = 0
@@ -111,16 +116,23 @@ class RealAgent:
 
     def setup_subtasks(self, env):
         """Initializing subtasks and subtask allocator, Bayesian Delegation."""
-        self.incomplete_subtasks = self.get_subtasks(world=env.world)
+        self.incomplete_subtasks = self.get_subtasks(world=env.world, recipes=self.recipes)
+        if self.arglist.hi:
+            self.own_subtasks = self.get_subtasks(world=env.world, recipes=self.own_recipes)
+        else:
+            self.own_subtasks = self.incomplete_subtasks
         self.delegator = BayesianDelegator(
                 agent_name=self.name,
                 all_agent_names=env.get_agent_names(),
                 model_type=self.model_type,
                 planner=self.planner,
-                none_action_prob=self.none_action_prob)
+                none_action_prob=self.none_action_prob,
+                hidden_information=self.arglist.hi,
+                subtasks=self.own_subtasks)
 
     def reset_subtasks(self):
         """Reset subtasks---relevant for Bayesian Delegation."""
+        print(f'Resetting subtasks for {color(self.name, self.color)}')
         self.subtask = None
         self.subtask_agent_names = []
         self.subtask_complete = False

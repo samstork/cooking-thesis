@@ -47,6 +47,8 @@ def parse_arguments():
 	parser.add_argument("--model2", type=str, default=None, help="Model type for agent 2 (bd, up, dc, fb, or greedy)")
 	parser.add_argument("--model3", type=str, default=None, help="Model type for agent 3 (bd, up, dc, fb, or greedy)")
 	parser.add_argument("--model4", type=str, default=None, help="Model type for agent 4 (bd, up, dc, fb, or greedy)")
+	
+	parser.add_argument("--hi", action="store_true", required=False, help='Use hidden recipes', default=False)
 
 	return parser.parse_args()
 
@@ -76,12 +78,18 @@ def initialize_agents(arglist):
 			# phase 3: read in agent locations (up to num_agents)
 			elif phase == 3:
 				if len(real_agents) < arglist.num_agents:
-					loc = line.split(' ')
+					own_recipes = []
+					if arglist.hi:
+						hidden_recipes = line.split(' ')[2:]
+						for recipe in hidden_recipes:
+							own_recipes.append(globals()[recipe]())
+
 					real_agent = RealAgent(
 							arglist=arglist,
 							name='agent-'+str(len(real_agents)+1),
 							id_color=COLORS[len(real_agents)],
-							recipes=recipes)
+							all_recipes=recipes,
+							own_recipes=own_recipes)
 					real_agents.append(real_agent)
 
 	return real_agents

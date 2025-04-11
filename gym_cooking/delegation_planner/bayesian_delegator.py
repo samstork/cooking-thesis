@@ -17,7 +17,7 @@ SubtaskAllocation = namedtuple("SubtaskAllocation", "subtask subtask_agent_names
 class BayesianDelegator(Delegator):
 
     def __init__(self, agent_name, all_agent_names,
-            model_type, planner, none_action_prob):
+            model_type, planner, none_action_prob, hidden_information=False, subtasks=None):
         """Initializing Bayesian Delegator for agent_name.
 
         Args:
@@ -37,6 +37,8 @@ class BayesianDelegator(Delegator):
         self.priors = 'uniform' if model_type == 'up' else 'spatial'
         self.planner = planner
         self.none_action_prob = none_action_prob
+        self.hidden_information = hidden_information
+        self.own_subtasks = subtasks
 
     def should_reset_priors(self, obs, incomplete_subtasks):
         """Returns whether priors should be reset.
@@ -80,6 +82,10 @@ class BayesianDelegator(Delegator):
         # Doing nothing is always possible.
         if subtask is None:
             return True
+        if self.hidden_information:
+            if (self.agent_name in subtask_agent_names and subtask not in self.own_subtasks):
+                return False
+        
         agent_locs = [agent.location for agent in list(filter(lambda a: a.name in subtask_agent_names, env.sim_agents))]
         start_obj, goal_obj = get_subtask_obj(subtask=subtask)
         subtask_action_obj = get_subtask_action_obj(subtask=subtask)

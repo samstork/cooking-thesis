@@ -127,7 +127,7 @@ class OvercookedEnvironment(gym.Env):
                 # Phase 3: Read in agent locations (up to num_agents).
                 elif phase == 3:
                     if len(self.sim_agents) < num_agents:
-                        loc = line.split(' ')
+                        loc = line.split(' ')                            
                         sim_agent = SimAgent(
                                 name='agent-'+str(len(self.sim_agents)+1),
                                 id_color=COLORS[len(self.sim_agents)],
@@ -203,11 +203,12 @@ class OvercookedEnvironment(gym.Env):
         self.print_agents()
         if self.arglist.record:
             self.game.save_image_obs(self.t)
+            # Get an image observation
+            image_obs = self.game.get_image_obs()
 
         # Get a plan-representation observation.
         new_obs = copy.copy(self)
-        # Get an image observation
-        image_obs = self.game.get_image_obs()
+
 
         done = self.done()
         reward = self.reward()
@@ -253,7 +254,7 @@ class OvercookedEnvironment(gym.Env):
 
     def display(self):
         self.update_display()
-        print(str(self))
+        print(self)
 
     def update_display(self):
         self.rep = self.world.update_display()
