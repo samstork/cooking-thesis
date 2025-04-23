@@ -23,7 +23,8 @@ class SubtaskAllocDistribution():
 
     def __str__(self):
         s = ''
-        for subtask_alloc, p in self.probs.items():
+        sorted_items = sorted(self.probs.items(), key=lambda x: x[1], reverse=True)
+        for subtask_alloc, p in sorted_items:
             s += str(subtask_alloc) + ': ' + str(p) + '\n'
         return s
 

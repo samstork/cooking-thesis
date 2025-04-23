@@ -14,10 +14,18 @@ from collections import namedtuple
 
 import gym
 
+import re
+def escape_ansi(line):
+	ansi_escape =re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+	return ansi_escape.sub('', line)
+
 
 
 def parse_arguments():
 	parser = argparse.ArgumentParser("Overcooked 2 argument parser")
+
+	parser.add_argument("--hi", action="store_true", required=False, help='Use hidden recipes', default=False)
+
 
 	# Environment
 	parser.add_argument("--level", type=str, required=True)
@@ -48,8 +56,6 @@ def parse_arguments():
 	parser.add_argument("--model3", type=str, default=None, help="Model type for agent 3 (bd, up, dc, fb, or greedy)")
 	parser.add_argument("--model4", type=str, default=None, help="Model type for agent 4 (bd, up, dc, fb, or greedy)")
 	
-	parser.add_argument("--hi", action="store_true", required=False, help='Use hidden recipes', default=False)
-
 	return parser.parse_args()
 
 
@@ -114,10 +120,21 @@ def main_loop(arglist):
 			action_dict[agent.name] = action
 
 		obs, reward, done, info = env.step(action_dict=action_dict)
+		filename = 'misc/game/record/{}/t={:03d}.txt'.format(obs.filename, obs.t)
+		with open (filename, 'w') as f:
+			print(f"Outputting to {filename}\n")
+			to_write = [f"# Timestep {obs.t}", "```", escape_ansi(str(obs)), "```"]
+			for agent in real_agents:
+				to_write.append(agent.get_status())
+			f.writelines("\n\n".join(to_write))
+			print("\n\n".join(to_write))
+
+			
 
 		# Agents
 		for agent in real_agents:
 			agent.refresh_subtasks(world=env.world)
+
 
 		# Saving info
 		bag.add_status(cur_time=info['t'], real_agents=real_agents)

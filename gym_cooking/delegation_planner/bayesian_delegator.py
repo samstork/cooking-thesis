@@ -187,7 +187,7 @@ class BayesianDelegator(Delegator):
             if other_agent_name != self.agent_name:
                 # Get most likely subtask and subtask agents for other agent
                 # based on my beliefs.
-                subtask, subtask_agent_names = self.select_subtask(
+                subtask, subtask_agent_names, _ = self.select_subtask(
                         agent_name=other_agent_name)
 
                 if subtask is None:
@@ -415,8 +415,8 @@ class BayesianDelegator(Delegator):
         if max_subtask_alloc is not None:
             for t in max_subtask_alloc:
                 if agent_name in t.subtask_agent_names:
-                    return t.subtask, t.subtask_agent_names
-        return None, agent_name
+                    return t.subtask, t.subtask_agent_names, max_subtask_alloc
+        return None, agent_name, None
 
     def ensure_at_least_one_subtask(self):
         # Make sure each agent has None task by itself.
@@ -472,3 +472,7 @@ class BayesianDelegator(Delegator):
                     factor=update)
             print("UPDATING: subtask_alloc {} by {}".format(subtask_alloc, update))
         self.probs.normalize()
+
+    def get_probs(self):
+        return self.probs                
+
