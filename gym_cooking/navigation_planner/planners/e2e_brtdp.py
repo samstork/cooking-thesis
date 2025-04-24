@@ -329,7 +329,7 @@ class E2E_BRTDP:
 
     def _configure_planner_space(self, subtask_agent_names):
         """Configure planner to either plan in joint space or single-agent space."""
-        assert len(subtask_agent_names) <= 2, "Cannot have more than 2 agents! Hm... {}".format(subtask_agents)
+        assert len(subtask_agent_names) <= 2, "Cannot have more than 2 agents! Hm... {}".format(subtask_agent_names)
 
         self.is_joint = len(subtask_agent_names) == 2
 

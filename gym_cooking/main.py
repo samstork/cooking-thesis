@@ -37,7 +37,7 @@ def parse_arguments():
 
 	# Delegation Planner
 	parser.add_argument("--beta", type=float, default=1.3, help="Beta for softmax in Bayesian delegation updates")
-	parser.add_argument("--bounded-bd")
+	parser.add_argument("--bounding-factor", type=float, default=0.0, help="Minimum probability as a factor of number of subtasks. Between 0 and 1.")
 
 	# Navigation Planner
 	parser.add_argument("--alpha", type=float, default=0.01, help="Alpha for BRTDP")

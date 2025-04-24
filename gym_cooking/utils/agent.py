@@ -168,7 +168,8 @@ class RealAgent:
 				none_action_prob=self.none_action_prob,
 				hidden_information=self.arglist.hi,
 				subtasks=self.own_subtasks,
-				seed=self.arglist.seed)
+				seed=self.arglist.seed,
+				bounding_factor=self.arglist.bounding_factor)
 
 	def reset_subtasks(self):
 		"""Reset subtasks---relevant for Bayesian Delegation."""
