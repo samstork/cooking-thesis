@@ -37,6 +37,7 @@ def parse_arguments():
 
 	# Delegation Planner
 	parser.add_argument("--beta", type=float, default=1.3, help="Beta for softmax in Bayesian delegation updates")
+	parser.add_argument("--bounded-bd")
 
 	# Navigation Planner
 	parser.add_argument("--alpha", type=float, default=0.01, help="Alpha for BRTDP")
@@ -117,7 +118,9 @@ def main_loop(arglist):
 
 		for agent in real_agents:
 			action = agent.select_action(obs=obs)
+			print(f"ACTION SELECTED AT TIMESTEP {obs.t} FOR {agent.name}: {action} ")
 			action_dict[agent.name] = action
+		print("ACTION DICTIONARY:\n", action_dict)
 
 		obs, reward, done, info = env.step(action_dict=action_dict)
 		

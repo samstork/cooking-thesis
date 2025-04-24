@@ -257,6 +257,7 @@ class E2E_BRTDP:
         if other_agent_planners:
             self.planner_level = PlannerLevel.LEVEL1
             self.other_agent_planners = other_agent_planners
+            print("Level 1 Planner")
         # Level 0 Planner.
         else:
             self.planner_level = PlannerLevel.LEVEL0
