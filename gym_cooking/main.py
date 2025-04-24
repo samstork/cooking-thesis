@@ -120,6 +120,7 @@ def main_loop(arglist):
 			action_dict[agent.name] = action
 
 		obs, reward, done, info = env.step(action_dict=action_dict)
+		
 		filename = 'misc/game/record/{}/t={:03d}.txt'.format(obs.filename, obs.t)
 		with open (filename, 'w') as f:
 			print(f"Outputting to {filename}\n")

@@ -19,8 +19,6 @@ import copy
 from termcolor import colored as color
 from collections import namedtuple
 
-from terminaltables import GithubFlavoredMarkdownTable as mdtable
-
 AgentRepr = namedtuple("AgentRepr", "name location holding")
 
 # Colors for agents.
@@ -93,7 +91,7 @@ class RealAgent:
 			i = 1
 			for subtask_alloc, prob in sorted_probs:
 				formatted_alloc = "\n".join(
-					[f" 		Subtask: {t.subtask}\n\t\t\tAgents: {', '.join(t.subtask_agent_names)}"
+					[f" 		{t.subtask}: {', '.join(t.subtask_agent_names)}"
 					for t in subtask_alloc]
 				)
 				formatted_probs.append(f"	Alloc {i}, prob: {prob:.4f}\n{formatted_alloc}")
@@ -103,10 +101,10 @@ class RealAgent:
 		alloc_string = "None"
 		if self.current_alloc is not None:
 			alloc_string = "\n".join(
-				f" 		Subtask: {t.subtask}\n\t\tAgents: {', '.join(t.subtask_agent_names)}"
-				for t in self.current_alloc
+				[f" 		{t.subtask}: {', '.join(t.subtask_agent_names)}"
+				for t in self.current_alloc]
 			)
-		return ("## Agent {} \n"
+		return ("## {} \n"
 		" 	Sim agent Currently at {}, action {}, holding {}\n"
 		" 	It has subtask: '{}', {}\n"
 		" 	It thinks the allocation is: \n{}\n"
