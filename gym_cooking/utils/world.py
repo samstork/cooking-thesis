@@ -93,9 +93,9 @@ class World:
                     # If both collidable, add nothing.
 
         # If you want to visualize this graph, uncomment below.
-        plt.figure()
-        nx.draw(self.reachability_graph)
-        plt.show()
+        # plt.figure()
+        # nx.draw(self.reachability_graph)
+        # plt.show()
 
     def get_lower_bound_between(self, subtask, agent_locs, A_locs, B_locs):
         """Return distance lower bound between subtask-relevant locations."""

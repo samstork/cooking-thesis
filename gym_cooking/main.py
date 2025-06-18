@@ -88,6 +88,7 @@ def initialize_agents(arglist):
 					own_recipes = []
 					if arglist.hi:
 						hidden_recipes = line.split(' ')[2:]
+						print (line, hidden_recipes)
 						if hidden_recipes != ['']:
 							for recipe in hidden_recipes:
 								own_recipes.append(globals()[recipe]())

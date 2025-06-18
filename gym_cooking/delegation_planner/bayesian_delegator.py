@@ -342,10 +342,22 @@ class BayesianDelegator(Delegator):
 												   SubtaskAllocation(subtask=ts[1], subtask_agent_names=(remaining_agents[1], )),]
 					other_subtask_allocs.append(new_subtask_alloc)
 			return other_subtask_allocs
+	
+	def rm_duplicate_allocs(self, seen_allocs, new_allocs):
+		non_dupes = []
+		for s_alloc in new_allocs:
+			key = tuple(sorted((str(t.subtask), tuple(sorted((t.subtask_agent_names)))) for t in s_alloc))
+			if seen_allocs[key] == 0:
+				seen_allocs[key] = 1
+				non_dupes.append(s_alloc)
+		return non_dupes
+
+
 
 	def add_subtasks(self):
 		"""Return the entire distribution of subtask allocations."""
 		subtask_allocs = []
+		seen_allocs = defaultdict(float)
 
 		subtasks = self.incomplete_subtasks
 		# Just one agent: Assign itself to all subtasks.
@@ -364,10 +376,12 @@ class BayesianDelegator(Delegator):
 					subtask_alloc = [SubtaskAllocation(subtask=t, subtask_agent_names=tuple(first_agents))]
 					remaining_agents = sorted(list(set(self.all_agent_names) - set(first_agents)))
 					remaining_subtasks = list(set(subtasks_temp) - set([t]))
-					subtask_allocs += self.get_other_subtask_allocations(
+					subtask_allocs += self.rm_duplicate_allocs(seen_allocs, self.get_other_subtask_allocations(
 							remaining_agents=remaining_agents,
 							remaining_subtasks=remaining_subtasks,
-							base_subtask_alloc=subtask_alloc)
+							base_subtask_alloc=subtask_alloc))
+					
+
 				# Divide and Conquer subtasks (different subtask assigned to remaining agents).
 				if len(subtasks_temp) > 1:
 					for ts in permutations(subtasks_temp, 2):
@@ -376,10 +390,11 @@ class BayesianDelegator(Delegator):
 								SubtaskAllocation(subtask=ts[1], subtask_agent_names=(first_agents[1],)),]
 						remaining_agents = sorted(list(set(self.all_agent_names) - set(first_agents)))
 						remaining_subtasks = list(set(subtasks_temp) - set(ts))
-						subtask_allocs += self.get_other_subtask_allocations(
-								remaining_agents=remaining_agents,
-								remaining_subtasks=remaining_subtasks,
-								base_subtask_alloc=subtask_alloc)
+						subtask_allocs += self.rm_duplicate_allocs(seen_allocs, self.get_other_subtask_allocations(
+							remaining_agents=remaining_agents,
+							remaining_subtasks=remaining_subtasks,
+							base_subtask_alloc=subtask_alloc))
+					
 		return SubtaskAllocDistribution(subtask_allocs, self.random_seed)
 
 	def add_greedy_subtasks(self):
@@ -434,7 +449,15 @@ class BayesianDelegator(Delegator):
 		and most recent actions taken (actions_tm1). Beta is used to determine
 		how rational agents act."""
 		# First, remove unreachable/undoable subtask agent subtask_allocs.
+		prob_dict = defaultdict(float)
 		for subtask_alloc in self.probs.enumerate_subtask_allocs():
+			key = (tuple(sorted((str(t.subtask), tuple(sorted((t.subtask_agent_names)))) for t in subtask_alloc)))
+			if prob_dict[key] != 0: 
+				print("DUPLICATE ALLOCATION!!")
+			else: 
+				prob_dict[key] = 1
+
+
 			for t in subtask_alloc:
 				if not self.subtask_alloc_is_doable(
 						env=obs_tm1,

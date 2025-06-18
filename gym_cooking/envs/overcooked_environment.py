@@ -75,7 +75,7 @@ class OvercookedEnvironment(gym.Env):
         return new_env
 
     def set_filename(self):
-        self.filename = "{}_agents{}_seed{}".format(self.arglist.level,\
+        self.filename = "hi-{}_{}_agents-{}_seed-{}".format(self.arglist.hi, self.arglist.level,\
             self.arglist.num_agents, self.arglist.seed)
         model = ""
         if self.arglist.model1 is not None:

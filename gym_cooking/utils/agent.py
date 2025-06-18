@@ -50,7 +50,7 @@ class RealAgent:
 		self.signal_reset_delegator = False
 		self.is_subtask_complete = lambda w: False
 		self.beta = arglist.beta
-		self.none_action_prob = 0.75
+		self.none_action_prob = 0.5
 		self.prev_move = (1, 0)
 
 		self.model_type = agent_settings(arglist, name)
@@ -94,10 +94,10 @@ class RealAgent:
 			prob_dict = defaultdict(float)
 
 			for subtask_alloc, prob in probs.probs.items():
-				key = (tuple(sorted((str(t.subtask), tuple(sorted((t.subtask_agent_names)))) for t in subtask_alloc)))
+				key = tuple((str(t.subtask), tuple((t.subtask_agent_names))) for t in subtask_alloc)
 				prob_dict[key] += prob
 
-			sorted_probs = sorted(prob_dict.items(), key=lambda x: x[1], reverse=True)
+			sorted_probs = sorted(probs.probs.items(), key=lambda x: x[1], reverse=True)
 			for i, (alloc_key, prob) in enumerate(sorted_probs, 1):
 				formatted_alloc = "\n".join(
 					[f" 		{subtask}: {', '.join(agent_names)}"
@@ -124,13 +124,12 @@ class RealAgent:
 			case (0, 1):
 				action = "down"
 				
-		return ("## {} \n"
+		return ("## {} ({}) \n"
 		" 	Was holding {}, went {}, is now at {}. \n"
 		" 	It has subtask: '{}', {}\n"
 		" 	It thinks the allocation is: \n{}\n"
 		" 	Other Alloc Probs:\n{}".format(
-			
-			self.name,
+			self.name, [x.name for x in self.own_recipes],
 			self.get_holding(),
 			action,
 			self.location,

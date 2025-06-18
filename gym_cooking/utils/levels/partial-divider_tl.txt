@@ -9,7 +9,7 @@
 SimpleTomato
 SimpleLettuce
 
-2 1
-4 1
-4 4
+2 1 SimpleTomato SimpleLettuce
+4 1 SimpleLettuce
+4 4 SimpleTomato
 2 4
