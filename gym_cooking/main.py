@@ -30,7 +30,7 @@ def parse_arguments():
 	# Environment
 	parser.add_argument("--level", type=str, required=True)
 	parser.add_argument("--num-agents", type=int, required=True)
-	parser.add_argument("--max-num-timesteps", type=int, default=100, help="Max number of timesteps to run")
+	parser.add_argument("--max-num-timesteps", type=int, default=75, help="Max number of timesteps to run")
 	parser.add_argument("--max-num-subtasks", type=int, default=14, help="Max number of subtasks for recipe")
 	parser.add_argument("--seed", type=int, default=1, help="Fix pseudorandom seed")
 	parser.add_argument("--with-image-obs", action="store_true", default=False, help="Return observations as images (instead of objects)")
@@ -42,8 +42,8 @@ def parse_arguments():
 	# Navigation Planner
 	parser.add_argument("--alpha", type=float, default=0.01, help="Alpha for BRTDP")
 	parser.add_argument("--tau", type=int, default=2, help="Normalize v diff")
-	parser.add_argument("--cap", type=int, default=75, help="Max number of steps in each main loop of BRTDP")
-	parser.add_argument("--main-cap", type=int, default=100, help="Max number of main loops in each run of BRTDP")
+	parser.add_argument("--cap", type=int, default=50, help="Max number of steps in each main loop of BRTDP")
+	parser.add_argument("--main-cap", type=int, default=50, help="Max number of main loops in each run of BRTDP")
 
 	# Visualizations
 	parser.add_argument("--play", action="store_true", default=False, help="Play interactive game with keys")
@@ -88,8 +88,11 @@ def initialize_agents(arglist):
 					own_recipes = []
 					if arglist.hi:
 						hidden_recipes = line.split(' ')[2:]
-						for recipe in hidden_recipes:
-							own_recipes.append(globals()[recipe]())
+						if hidden_recipes != ['']:
+							for recipe in hidden_recipes:
+								own_recipes.append(globals()[recipe]())
+						else:
+							own_recipes = []
 
 					real_agent = RealAgent(
 							arglist=arglist,

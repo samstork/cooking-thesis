@@ -1,0 +1,14 @@
+-------
+-  -  -
+-  -  -
+/  -  /
+-----t-
+-     -
+--p*p--
+
+SimpleTomato
+
+2 1 SimpleTomato
+4 1 
+4 5 SimpleTomato
+2 5 SimpleTomato

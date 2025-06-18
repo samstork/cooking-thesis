@@ -1,3 +1,6 @@
+from collections import defaultdict
+
+
 # Recipe planning
 from recipe_planner.stripsworld import STRIPSWorld
 import recipe_planner.utils as recipe_utils
@@ -14,6 +17,7 @@ import navigation_planner.utils as nav_utils
 from utils.core import Counter, Cutboard
 from utils.utils import agent_settings
 
+
 import numpy as np
 import copy
 from termcolor import colored as color
@@ -23,6 +27,7 @@ AgentRepr = namedtuple("AgentRepr", "name location holding")
 
 # Colors for agents.
 COLORS = ['blue', 'magenta', 'yellow', 'green']
+
 
 
 class RealAgent:
@@ -45,7 +50,8 @@ class RealAgent:
 		self.signal_reset_delegator = False
 		self.is_subtask_complete = lambda w: False
 		self.beta = arglist.beta
-		self.none_action_prob = 0.5
+		self.none_action_prob = 0.75
+		self.prev_move = (1, 0)
 
 		self.model_type = agent_settings(arglist, name)
 		if self.model_type == "up":
@@ -85,14 +91,17 @@ class RealAgent:
 		prob_string = "None"
 		if probs is not None:
 			formatted_probs = []
+			prob_dict = defaultdict(float)
 
-			# Sort probabilities in descending order
-			sorted_probs = sorted(probs.probs.items(), key=lambda x: x[1], reverse=True)
-			i = 1
-			for subtask_alloc, prob in sorted_probs:
+			for subtask_alloc, prob in probs.probs.items():
+				key = (tuple(sorted((str(t.subtask), tuple(sorted((t.subtask_agent_names)))) for t in subtask_alloc)))
+				prob_dict[key] += prob
+
+			sorted_probs = sorted(prob_dict.items(), key=lambda x: x[1], reverse=True)
+			for i, (alloc_key, prob) in enumerate(sorted_probs, 1):
 				formatted_alloc = "\n".join(
-					[f" 		{t.subtask}: {', '.join(t.subtask_agent_names)}"
-					for t in subtask_alloc]
+					[f" 		{subtask}: {', '.join(agent_names)}"
+					for subtask, agent_names in alloc_key]
 				)
 				formatted_probs.append(f"	Alloc {i}, prob: {prob:.4f}\n{formatted_alloc}")
 				i += 1
@@ -104,15 +113,27 @@ class RealAgent:
 				[f" 		{t.subtask}: {', '.join(t.subtask_agent_names)}"
 				for t in self.current_alloc]
 			)
+		action = "none"
+		match self.action:
+			case (-1, 0):
+				action = "left"
+			case (1, 0):
+				action = "right"
+			case (0, -1):
+				action = "up"
+			case (0, 1):
+				action = "down"
+				
 		return ("## {} \n"
-		" 	Sim agent Currently at {}, action {}, holding {}\n"
+		" 	Was holding {}, went {}, is now at {}. \n"
 		" 	It has subtask: '{}', {}\n"
 		" 	It thinks the allocation is: \n{}\n"
 		" 	Other Alloc Probs:\n{}".format(
+			
 			self.name,
-			self.location,
-			self.action,
 			self.get_holding(),
+			action,
+			self.location,
 			own_subtask, completeness,
 			alloc_string,
 			prob_string))
@@ -137,6 +158,8 @@ class RealAgent:
 		self.new_subtask, self.new_subtask_agent_names, self.current_alloc = self.delegator.select_subtask(
 				agent_name=self.name)
 		self.plan(copy.copy(obs))
+		if self.action != (0, 0):
+			self.prev_move = self.action
 		return self.action
 
 	def get_subtasks(self, world, recipes):
@@ -250,7 +273,7 @@ class RealAgent:
 				if a == (0, 0):
 					probs.append(self.none_action_prob)
 				else:
-					probs.append((1.0-self.none_action_prob)/(len(actions)-1))
+					probs.append((1.0-self.none_action_prob)/(len(actions) - 1))
 			self.action = actions[np.random.choice(len(actions), p=probs)]
 		# Otherwise, plan accordingly.
 		else:

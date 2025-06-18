@@ -1,15 +1,15 @@
 -------
-/  -  /
 -  -  -
--------
+-  -  -
+/  -  /
+-l---t-
 -     -
--     -
--lp*pt-
+--p*p--
 
 SimpleTomato
 SimpleLettuce
 
 2 1 SimpleTomato
 4 1 SimpleLettuce
-4 4 SimpleLettuce SimpleTomato
-2 4 SimpleLettuce SimpleTomato
+4 5 SimpleLettuce SimpleTomato
+2 5 SimpleLettuce SimpleTomato

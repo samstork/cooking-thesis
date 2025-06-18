@@ -292,7 +292,7 @@ class BayesianDelegator(Delegator):
 		softmax_diffs = sp.special.softmax(beta * np.asarray(qdiffs))
 		bounding_minimum = 1/len(softmax_diffs) * self.bounding_factor
 		softmax_diffs = sp.special.softmax(np.asarray([t if t > (bounding_minimum) else bounding_minimum for t in softmax_diffs]))
-		# Taking the softmax of the action actually taken.
+		# Taking the softmax of the action actually taken.	
 		return softmax_diffs[valid_nav_actions.index(action)]
 
 	def get_other_subtask_allocations(self, remaining_agents, remaining_subtasks, base_subtask_alloc):
