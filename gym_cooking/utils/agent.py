@@ -157,8 +157,6 @@ class RealAgent:
 		self.new_subtask, self.new_subtask_agent_names, self.current_alloc = self.delegator.select_subtask(
 				agent_name=self.name)
 		self.plan(copy.copy(obs))
-		if self.action != (0, 0):
-			self.prev_move = self.action
 		return self.action
 
 	def get_subtasks(self, world, recipes):
@@ -273,7 +271,12 @@ class RealAgent:
 					probs.append(self.none_action_prob)
 				else:
 					probs.append((1.0-self.none_action_prob)/(len(actions) - 1))
-			self.action = actions[np.random.choice(len(actions), p=probs)]
+			index = np.random.choice(np.arange(len(actions)), p=np.array(probs))
+			new_action = actions[index]
+			print("Index: ", index)
+			print(actions, " Length: ", len(actions))
+			print(probs)
+			self.action = new_action
 		# Otherwise, plan accordingly.
 		else:
 			if self.model_type == 'greedy' or initializing_priors:

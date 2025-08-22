@@ -21,8 +21,6 @@ class SubtaskAllocDistribution():
 		for subtask_alloc in subtask_allocs:
 			self.probs[tuple(subtask_alloc)] = prior
 		
-		np.random.seed(seed)
-		random.seed(seed)
 
 	def __str__(self):
 		s = ''

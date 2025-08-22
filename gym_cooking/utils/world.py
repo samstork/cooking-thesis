@@ -19,6 +19,7 @@ class World:
         self.rep = [] # [row0, row1, ..., rown]
         self.arglist = arglist
         self.objects = defaultdict(lambda : [])
+        self.static_objects = defaultdict(lambda: [])
 
     def get_repr(self):
         return self.get_dynamic_objects()
@@ -30,7 +31,9 @@ class World:
     def __copy__(self):
         new = World(self.arglist)
         new.__dict__ = self.__dict__.copy()
+
         new.objects = copy.deepcopy(self.objects)
+        new.static_objects = copy.copy(self.static_objects)
         new.reachability_graph = self.reachability_graph
         new.distances = self.distances
         return new
@@ -38,9 +41,7 @@ class World:
     def update_display(self):
         # Reset the current display (self.rep).
         self.rep = [[' ' for i in range(self.width)] for j in range(self.height)]
-        objs = []
-        for o in self.objects.values():
-            objs += o
+        objs = self.get_object_list()
         for obj in objs:
             self.add_object(obj, obj.location)
         for obj in self.objects["Tomato"]:
@@ -48,7 +49,13 @@ class World:
         return self.rep
 
     def print_objects(self):
-        for k, v in self.objects.items():
+        objs = self.objects.items()
+        for k, v in objs:
+            print(k, list(map(lambda o: o.location, v)))
+
+    def print_static_objects(self):
+        objs = self.static_objects.items()
+        for k, v in objs:
             print(k, list(map(lambda o: o.location, v)))
 
     def make_loc_to_gridsquare(self):
@@ -214,21 +221,37 @@ class World:
         self.rep[y][x] = str(object_)
 
     def insert(self, obj):
-        self.objects.setdefault(obj.name, []).append(obj)
+        if obj.name != "Floor":
+            self.objects.setdefault(obj.name, []).append(obj)
+        else:
+            self.static_objects.setdefault(obj.name, []).append(obj)
+        
 
     def remove(self, obj):
         num_objs = len(self.objects[obj.name])
+        no_static_removal = False
         index = None
         for i in range(num_objs):
             if self.objects[obj.name][i].location == obj.location:
                 index = i
+        if index is None:
+            num_stat_objs = len(self.objects[obj.name])
+            for i in range(num_stat_objs):
+                if self.static_objects[obj.name][i].location == obj.location:
+                    index = i
+            assert index is not None, "Could not find {}!".format(obj.name)
+            
+            self.static_objects[obj.name].pop(index)
+            static_removal = len(self.static_objects[obj.name]) < num_stat_objs
         assert index is not None, "Could not find {}!".format(obj.name)
         self.objects[obj.name].pop(index)
-        assert len(self.objects[obj.name]) < num_objs, "Nothing from {} was removed from world.objects".format(obj.name)
+        assert len(self.objects[obj.name]) < num_objs or static_removal, "Nothing from {} was removed from world.objects".format(obj.name)
 
     def get_object_list(self):
         all_obs = []
         for o in self.objects.values():
+            all_obs += o
+        for o in self.static_objects.values():
             all_obs += o
         return all_obs
 
@@ -256,16 +279,20 @@ class World:
         return location in list(map(lambda o: o.location, list(filter(lambda o: o.collidable, self.get_object_list()))))
 
     def get_object_locs(self, obj, is_held):
+        objs = self.objects
         if obj.name not in self.objects.keys():
-            return []
-
+            if obj.name not in self.static_objects.keys():
+                return []
+            else:
+                objs = self.static_objects
+            
         if isinstance(obj, Object):
             return list(
                     map(lambda o: o.location, list(filter(lambda o: obj == o and
-                    o.is_held == is_held, self.objects[obj.name]))))
+                    o.is_held == is_held, objs[obj.name]))))
         else:
             return list(map(lambda o: o.location, list(filter(lambda o: obj == o,
-                self.objects[obj.name]))))
+                objs[obj.name]))))
 
     def get_all_object_locs(self, obj):
         return list(set(self.get_object_locs(obj=obj, is_held=True) + self.get_object_locs(obj=obj, is_held=False)))
