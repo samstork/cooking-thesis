@@ -128,19 +128,25 @@ class RealAgent:
 		" 	Was holding {}, went {}, is now at {}. \n"
 		" 	It has subtask: '{}', {}\n"
 		" 	It thinks the allocation is: \n{}\n"
-		" 	Other Alloc Probs:\n{}".format(
+		" 	Other Alloc Probs:\n{} \n\t{} is at {}".format(
 			self.name, [x.name for x in self.own_recipes],
 			self.get_holding(),
 			action,
 			self.location,
 			own_subtask, completeness,
 			alloc_string,
-			prob_string))
+			prob_string, self.get_holding(), self.get_holding_loc())
+		)
 
 	def get_holding(self):
 		if self.holding is None:
 			return 'None'
 		return self.holding.full_name
+
+	def get_holding_loc(self):
+		if self.holding is None:
+			return 'None'
+		return self.holding.location
 
 	def select_action(self, obs):
 		"""Return best next action for this agent given observations."""
@@ -165,7 +171,7 @@ class RealAgent:
 		# [path for recipe 1, path for recipe 2, ...] where each path is a list of actions.
 		subtasks = self.sw.get_subtasks(max_path_length=self.arglist.max_num_subtasks)
 		all_subtasks = [subtask for path in subtasks for subtask in path]
-		print(f"Subtasks: {all_subtasks}")
+		# print(f"Subtasks: {all_subtasks}")
 
 		# Uncomment below to view graph for recipe path i
 		# i = 0
@@ -193,7 +199,6 @@ class RealAgent:
 
 	def reset_subtasks(self):
 		"""Reset subtasks---relevant for Bayesian Delegation."""
-		print(f'Resetting subtasks for {color(self.name, self.color)}')
 		self.subtask = None
 		self.subtask_agent_names = []
 		self.subtask_complete = False
@@ -217,9 +222,9 @@ class RealAgent:
 			if self.subtask in self.incomplete_subtasks:
 				self.incomplete_subtasks.remove(self.subtask)
 				self.subtask_complete = True
-		print('{} incomplete subtasks:'.format(
-			color(self.name, self.color)),
-			', '.join(str(t) for t in self.incomplete_subtasks))
+		# print('{} incomplete subtasks:'.format(
+		# 	color(self.name, self.color)),
+		# 	', '.join(str(t) for t in self.incomplete_subtasks))
 
 	def update_subtasks(self, env):
 		"""Update incomplete subtasks---relevant for Bayesian Delegation."""
@@ -273,9 +278,6 @@ class RealAgent:
 					probs.append((1.0-self.none_action_prob)/(len(actions) - 1))
 			index = np.random.choice(np.arange(len(actions)), p=np.array(probs))
 			new_action = actions[index]
-			print("Index: ", index)
-			print(actions, " Length: ", len(actions))
-			print(probs)
 			self.action = new_action
 		# Otherwise, plan accordingly.
 		else:
@@ -392,6 +394,8 @@ class SimAgent:
 		self.holding = None
 
 	def move_to(self, new_location):
+		old_location = self.location
 		self.location = new_location
 		if self.holding is not None:
 			self.holding.location = new_location
+		

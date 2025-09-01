@@ -24,6 +24,7 @@ class Rep:
     LETTUCE = 'l'
     ONION = 'o'
     PLATE = 'p'
+    AGENTCOUNTER = 'A'
 
 class nothingburger:
     def __init__(self):
@@ -84,7 +85,7 @@ class Counter(GridSquare):
 class AgentCounter(Counter):
     def __init__(self, location):
         GridSquare.__init__(self,"Agent-Counter", location)
-        self.rep = Rep.COUNTER
+        self.rep = Rep.AGENTCOUNTER
         self.collidable = True
     def __eq__(self, other):
         return Counter.__eq__(self, other)

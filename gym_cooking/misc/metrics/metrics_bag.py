@@ -6,12 +6,14 @@ class Bag:
     def __init__(self, arglist, filename):
         self.data = {}
         self.arglist = arglist
-        self.directory = "misc/metrics/pickles/"
+        self.directory = "misc/metrics/results/"
         self.filename = filename
         self.set_general()
 
     def set_general(self):
         self.data["level"] = self.arglist.level
+        self.data["hidden_information"] = self.arglist.hi
+        self.data["seed"] = self.arglist.seed
         self.data["num_agents"] = self.arglist.num_agents
         self.data["profiling"] = {info : [] for info in ["Delegation", "Navigation", "Total"]}
         self.data["num_completed_subtasks"] = []
@@ -59,6 +61,13 @@ class Bag:
             incomplete_subtasks = incomplete_subtasks & set(a.incomplete_subtasks)
         self.data["num_completed_subtasks"].append(self.data["num_total_subtasks"] - len(incomplete_subtasks))
 
+    def save_to_txt(self):
+        txt_path = os.path.join(self.directory, self.filename + ".txt")
+        os.makedirs(self.directory, exist_ok=True)
+        with open(txt_path, "w", encoding="utf-8") as f:
+            for k, v in self.data.items():
+                f.write(f"{k}: {v}\n")
+
     def set_termination(self, termination_info, successful):
         self.data["termination"] = termination_info
         self.data["was_successful"] = successful
@@ -66,6 +75,4 @@ class Bag:
             print("{}: {}\n".format(k, v))
         self.data["num_completed_subtasks_end"] = 0 if len(self.data["num_completed_subtasks"]) == 0 else self.data["num_completed_subtasks"][-1]
         print('completed {} / {} subtasks'.format(self.data["num_completed_subtasks_end"], self.data["num_total_subtasks"]))
-        with open(str(self.directory+self.filename+'.pkl'), "wb") as file:
-            pickle.dump(self.data, file)
-        print("Saved to {}".format(self.directory+self.filename+'.pkl'))
+        self.save_to_txt()

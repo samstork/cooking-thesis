@@ -70,12 +70,16 @@ def get_single_actions(env, agent):
             elif isinstance(gs, Delivery):
                 actions.append(t)
             # Can interact with others if at least one of me or gs is holding something, or mergeable
-            elif gs.holding is None and agent.holding is not None:
+            elif gs.holding is None and agent.holding is not None and not isinstance(gs, AgentCounter):
+                # print(f"loc: {gs} {gs.location}, {agent.name} gonna try putting {agent.holding} down")
                 actions.append(t)
             elif gs.holding is not None and isinstance(gs.holding, Object) and agent.holding is None:
+                # print(f"loc: {gs} {gs.location}, {agent.name} gonna try picking up {gs.holding}")
                 actions.append(t)
             elif gs.holding is not None and isinstance(gs.holding, Object) and\
                 agent.holding is not None and mergeable(agent.holding, gs.holding):
+                # print(f"loc: {gs} {gs.location}, {agent.name} gonna try merging {agent.holding} and {gs.holding}")
+
                 actions.append(t)
     # doing nothing is always possible
     actions.append((0, 0))

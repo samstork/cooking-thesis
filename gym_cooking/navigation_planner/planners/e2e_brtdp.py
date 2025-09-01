@@ -88,11 +88,11 @@ class E2E_BRTDP:
         """Return next states when taking action from state."""
         state = self.repr_to_env_dict[state_repr]
         subtask_agents = self.get_subtask_agents(env_state=state)
-
         # Single agent
         if not self.is_joint:
             agent = subtask_agents[0]
             sim_state = copy.copy(state)
+            # sim_state.world.print_all_object_locs()
             sim_agent = list(filter(lambda a: a.name == agent.name, sim_state.sim_agents))[0]
             sim_agent.action = action
             interact(agent=sim_agent,
@@ -150,7 +150,6 @@ class E2E_BRTDP:
 
     def runSampleTrial(self):
         """runSampleTrial from BRTDP paper."""
-        start_time = time.time()
         x = self.start
         traj = nav_utils.Stack()
 
@@ -227,7 +226,7 @@ class E2E_BRTDP:
 
         # Run until convergence or until you max out on iteration
         while (diff > self.alpha) and (main_counter < self.main_cap):
-            # print('\nstarting main loop #', main_counter)
+            # print('\nstarting brtdp loop #', main_counter)
             new_upper = self.v_u[(start_repr, self.subtask)]
             new_lower = self.v_l[(start_repr, self.subtask)]
             new_diff = new_upper - new_lower
@@ -235,8 +234,8 @@ class E2E_BRTDP:
                 self.start.update_display()
                 self.start.display()
                 self.start.print_agents()
-                print('\nold: upper {}, lower {}'.format(upper, lower))
-                print('new: upper {}, lower {}'.format(new_upper, new_lower))
+                # print('\nold: upper {}, lower {}'.format(upper, lower))
+                # print('new: upper {}, lower {}'.format(new_upper, new_lower))
             diff = new_diff
             upper = new_upper
             lower = new_lower
@@ -257,7 +256,6 @@ class E2E_BRTDP:
         if other_agent_planners:
             self.planner_level = PlannerLevel.LEVEL1
             self.other_agent_planners = other_agent_planners
-            print("Level 1 Planner")
         # Level 0 Planner.
         else:
             self.planner_level = PlannerLevel.LEVEL0
@@ -530,7 +528,6 @@ class E2E_BRTDP:
         """Return next action."""
         print("-------------[e2e]-----------")
         self.removed_object = None
-        start_time = time.time()
 
         # Configure planner settings.
         self.set_settings(
@@ -563,12 +560,12 @@ class E2E_BRTDP:
             qvals = [self.Q(state=cur_state, action=a, value_f=self.v_l)
                     for a in actions]
             # print([x for x in zip(actions, qvals)])
-            print('upper is', self.v_u[(cur_state.get_repr(), self.subtask)])
-            print('lower is', self.v_l[(cur_state.get_repr(), self.subtask)])
+            # print('upper is', self.v_u[(cur_state.get_repr(), self.subtask)])
+            # print('lower is', self.v_l[(cur_state.get_repr(), self.subtask)])
 
             action_index = argmin(np.array(qvals))
             a = actions[action_index]
 
-            print('chose action:', a)
-            print('cost:', self.cost(cur_state, a))
+            # print('chose action:', a)
+            # print('cost:', self.cost(cur_state, a))
             return a

@@ -241,7 +241,6 @@ class BayesianDelegator(Delegator):
 			A float probability update of whether agents in subtask_agent_names are
 			performing subtask.
 		"""
-		# print("[BayesianDelgation.prob_nav_actions] Calculating probs for subtask {} by {}".format(str(subtask), ' & '.join(subtask_agent_names)))
 		assert len(subtask_agent_names) == 1 or len(subtask_agent_names) == 2
 
 		# Perform inference over None subtasks.
@@ -263,6 +262,7 @@ class BayesianDelegator(Delegator):
 		# Perform inference over all non-None subtasks.
 		# Calculate Q_{subtask}(obs_tm1, action) for all actions.
 		action = tuple([actions_tm1[a_name] for a_name in subtask_agent_names])
+
 		if len(subtask_agent_names) == 1:
 			action = action[0]
 		state, other_planners = self.get_appropriate_state_and_other_agent_planners(
@@ -453,7 +453,7 @@ class BayesianDelegator(Delegator):
 		for subtask_alloc in self.probs.enumerate_subtask_allocs():
 			key = (tuple(sorted((str(t.subtask), tuple(sorted((t.subtask_agent_names)))) for t in subtask_alloc)))
 			if prob_dict[key] != 0: 
-				print("DUPLICATE ALLOCATION!!")
+				print("Duplicate Allocation")
 			else: 
 				prob_dict[key] = 1
 
@@ -497,7 +497,6 @@ class BayesianDelegator(Delegator):
 			self.probs.update(
 					subtask_alloc=subtask_alloc,
 					factor=update)
-			print("UPDATING: subtask_alloc {} by {}".format(subtask_alloc, update))
 		self.probs.normalize()
 
 	def get_probs(self):

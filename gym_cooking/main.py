@@ -88,7 +88,6 @@ def initialize_agents(arglist):
 					own_recipes = []
 					if arglist.hi:
 						hidden_recipes = line.split(' ')[2:]
-						print (line, hidden_recipes)
 						if hidden_recipes != ['']:
 							for recipe in hidden_recipes:
 								own_recipes.append(globals()[recipe]())
@@ -118,13 +117,13 @@ def main_loop(arglist):
 	bag.set_recipe(recipe_subtasks=env.all_subtasks)
 
 	while not env.done():
+		print(f"=====\nMain loop {obs.t}\n=====\n")
 		action_dict = {}
 
 		for agent in real_agents:
 			action = agent.select_action(obs=obs)
 			print(f"ACTION SELECTED AT TIMESTEP {obs.t} FOR {agent.name}: {action} ")
 			action_dict[agent.name] = action
-		print("ACTION DICTIONARY:\n", action_dict)
 
 		obs, reward, done, info = env.step(action_dict=action_dict)
 		
@@ -135,14 +134,11 @@ def main_loop(arglist):
 			for agent in real_agents:
 				to_write.append(agent.get_status())
 			f.writelines("\n\n".join(to_write))
-			print("\n\n".join(to_write))
-
-			
+			print("\n\n".join(to_write))		
 
 		# Agents
 		for agent in real_agents:
 			agent.refresh_subtasks(world=env.world)
-
 
 		# Saving info
 		bag.add_status(cur_time=info['t'], real_agents=real_agents)

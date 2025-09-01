@@ -26,16 +26,17 @@ def interact(agent, world):
             if obj.is_deliverable():
                 gs.acquire(obj)
                 agent.release()
-                print('\nDelivered {}!'.format(obj.full_name))
 
         # if occupied gridsquare in front --> try merging
         elif world.is_occupied(gs.location):
+            # print(f"{agent.name} tries merging")
+
             # Get object on gridsquare/counter
             obj = world.get_object_at(gs.location, None, find_held_objects = False)
 
             if mergeable(agent.holding, obj):
                 world.remove(obj)
-                o = gs.release() # agent is holding object
+                obj = gs.release() # agent is holding object
                 world.remove(agent.holding)
                 agent.acquire(obj)
                 world.insert(agent.holding)
